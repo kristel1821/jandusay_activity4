@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Sensor Data</title>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getFirestore, collection, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBAdkhM-EwYpiDvzZtx8cUjsSAmX0v5Ivw",
+            authDomain: "mbc-integ-f5af7.firebaseapp.com",
+            projectId: "mbc-integ-f5af7",
+            storageBucket: "mbc-integ-f5af7.firebasestorage.app",
+            messagingSenderId: "47940779807",
+            appId: "1:47940779807:web:6a61cd9e6a07766e453a2a",
+            measurementId: "G-CE4QSW1PLV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const q = query(collection(db, "sd"), orderBy("timestamp", "desc"), limit(1));
+
+        onSnapshot(q, (snapshot) => {
+            if (!snapshot.empty) {
+                const doc = snapshot.docs[0];
+                const data = doc.data();
+
+                console.log("Live Data:", data);
+
+                document.getElementById("temperature").innerText = (data.temperature ?? "--") + " °C";
+                document.getElementById("humidity").innerText = (data.humidity ?? "--") + " %";
+                document.getElementById("light").innerText = data.light_level ?? "--";
+            } else {
+                console.log("No live sensor data found.");
+                document.getElementById("temperature").innerText = "-- °C";
+                document.getElementById("humidity").innerText = "-- %";
+                document.getElementById("light").innerText = "--";
+            }
+        }, (error) => {
+            console.error("Error fetching sensor data:", error);
+        });
+    </script>
+
+    <!-- Modern Lavender Theme CSS -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #E6E6FA;
+            color: #4B0082;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: #6A0DAD;
+        }
+
+        .dashboard {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .card {
+            background: #D8BFD8;
+            padding: 30px 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(75, 0, 130, 0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 25px rgba(75, 0, 130, 0.5);
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            color: #4B0082;
+            margin-bottom: 15px;
+        }
+
+        .value {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #6A0DAD;
+        }
+
+        @media (max-width: 600px) {
+            h2 {
+                font-size: 2rem;
+            }
+
+            .value {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Live Sensor Data Dashboard</h2>
+
+    <div class="dashboard">
+        <div class="card">
+            <h3>Temperature</h3>
+            <p class="value" id="temperature">-- °C</p>
+        </div>
+
+        <div class="card">
+            <h3>Humidity</h3>
+            <p class="value" id="humidity">-- %</p>
+        </div>
+
+        <div class="card">
+            <h3>Light Level</h3>
+            <p class="value" id="light">--</p>
+        </div>
+    </div>
+
+</body>
+
+</html>
